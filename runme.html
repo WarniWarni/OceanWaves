@@ -8,8 +8,6 @@
 	<script src="three.js-master/build/three.js"></script>
 	<script src="waves_fun.js"></script>
 	<script src="initiation.js"></script>
-	<!-- <script src="node_modules/fftw-js/src/FFTW.js" type="text/javascript" charset="utf-8" async defer></script> -->
-	<!-- <script src="node_modules/fft.js/lib/fft.js" type="text/javascript" charset="utf-8" async defer></script> -->
 
 	<script>
 
@@ -23,9 +21,6 @@
 		var i=0;
 		init();
 		var vertices = plane.geometry.attributes.position.array; // powinno być nazewnątrz, żeby nie wyliczać chyba każdego wierzchołka. Bierzemy x i y a potem ustawiamy mu z. To wystarczy dla każdego x, dla każdego y ustaw z(x,y,t)
-
-		// randomize_vertice_height(_geo);
-		// animate_nothing();
 		animate();
 // ======================================================
 		function init() {

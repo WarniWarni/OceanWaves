@@ -1,5 +1,6 @@
 function random_height(){ // normal distribution
-    var u = 0, v = 0;
+    var u = 0;
+    var v = 0;
     while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
     while(v === 0) v = Math.random();
     return Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
@@ -12,71 +13,44 @@ function randomize_vertice_height(){
 	plane.geometry.attributes.position.needsUpdate = true;
 	plane.geometry.computeVertexNormals();
 }
+
 function wave_function(){
 	// vertices[3k] = x1,x2..., vertices[3k+1] = y1,y2..., vertices[3k+2] = z1,z2...
 	// var vertices = plane.geometry.attributes.position.array; // powinno być nazewnątrz, żeby nie wyliczać chyba każdego wierzchołka. Bierzemy x i y a potem ustawiamy mu z. To wystarczy dla każdego x, dla każdego y ustaw z(x,y,t)
 	// for (var i=0; i<vertices.length; i+=3){	
 	// }
-	var t_ = clock.getElapsedTime();
-	const Amp = 1/4;
-	const lambda = 7;
-	const k = 2*Math.PI/lambda;
-	
-	const Amp2 = Amp/2;
-	const Amp3 = Amp2*3/4;
-	const Amp4 = Amp3*3/4;
+	var t = clock.getElapsedTime(); // time
 
-	const k2 = 2*k;
-	const k3 = 3*k;
-	const k4 = 4*k;
-
-	const g = 9.81;
-	const w = Math.sqrt(k*g);
-
-	const w2 = Math.sqrt(k2*g);
-	const w3 = Math.sqrt(k3*g);
-	const w4 = Math.sqrt(k4*g);
-
-	const x0 = 1;
-	var K = 3;
-
-	for (var x=0; x<vertices.length; x+=3){
-		// vertices[x] = x0 - (K/k)*Amp*Math.sin(K*x - w*t_);
-		vertices[x+2] = Math.sqrt(Math.pow(Amp*Math.cos(x0*K - w*t_),2) + Math.pow(x0-(K/k)*Amp*Math.sin(K*x-w*t_),2)) 
-		+ Math.sqrt(Math.pow(Amp2*Math.cos(x0*K - w2*t_),2) + Math.pow(x0-(K/k2)*Amp*Math.sin(K*x-w2*t_),2))
-		+ Math.sqrt(Math.pow(Amp3*Math.cos(x0*K - w3*t_),2) + Math.pow(x0-(K/k3)*Amp*Math.sin(K*x-w3*t_),2))
-		+ Math.sqrt(Math.pow(Amp4*Math.cos(x0*K - w4*t_),2) + Math.pow(x0-(K/k4)*Amp*Math.sin(K*x-w4*t_),2));
+	const A = 0.25; // amplitude of wave
+	const L = 15; // wavelength
+	const omega = 2*Math.PI/L;
+	const g = 9.81; // gravitational force
+	const S = 0.2; // speed of wave
+	const fi = S*2*L; // phase dependant of speed
+	const D = new THREE.Vector2( 1, 0 ); // wind direction vector
+	//
+	var x = 1;
+	var y = 1;
+	//
+	for (x=0; x<vertices.length; x+=3){
+		var state = getStateOfWave(x,x+1,t,A,D,omega,fi);
+		vertices[x+2] = state;
 	}
-
-	// for (var x=0; x<vertices.length; x+=3){
-	// 		vertices[x+2] = Amp * Math.sin(x/10 + t_)+ Amp/2 * Math.sin(x/5 + t_/2) + 3*Amp/8 * Math.sin(x + t_/4);
-	// }
 	plane.geometry.attributes.position.needsUpdate = true;
 	plane.geometry.computeVertexNormals();
 }
-function create_wave() {
-	// delta = clock.getDelta();
-	var t_ = clock.getElapsedTime();
-	wave_function(t_);
-	// positions__ <= position matrix x, y, z
-	// console.log(delta);
-	// console.log(elapsedTime);
+function getStateOfWave(x,y,t,A,D,omega,fi){
+	var xy_vec = new THREE.Vector2( x, y );
+	var dotProd = D.dot(xy_vec);
+	var crossProd = dotProd*omega;
+	return A*Math.sin(crossProd + t*fi);
 }
-//
-/*function animate_nothing(){
-	requestAnimationFrame(render_scene);
-	renderer.render(scene,camera);
-}*/
+
 function render_scene(){
 	renderer.render(scene, camera);
 }
 function animate() {
-	// randomize_vertice_height();
-	// create_wave();
 	wave_function();
-	// say_framerate();
 	requestAnimationFrame(animate);
 	render_scene();
-	// renderer.render(scene, camera);
 }
-//
