@@ -39,15 +39,13 @@ function wave_function(){
 
 	const x0 = 1;
 	var K = 3;
-	for (var xx=0; xx<vertices.length; xx+=31){
-		for (var x=xx; x<xx+31; x+=3){
-			// vertices[x] = x0 - (K/k)*Amp*Math.sin(K*x - w*t_);
-			vertices[x+2] = Math.sqrt(Math.pow(Amp*Math.cos(x0*K - w*t_),2) + Math.pow(x0-(K/k)*Amp*Math.sin(K*x-w*t_),2)) 
-			+ Math.sqrt(Math.pow(Amp2*Math.cos(x0*K - w2*t_),2) + Math.pow(x0-(K/k2)*Amp*Math.sin(K*x-w2*t_),2))
-			+ Math.sqrt(Math.pow(Amp3*Math.cos(x0*K - w3*t_),2) + Math.pow(x0-(K/k3)*Amp*Math.sin(K*x-w3*t_),2))
-			+ Math.sqrt(Math.pow(Amp4*Math.cos(x0*K - w4*t_),2) + Math.pow(x0-(K/k4)*Amp*Math.sin(K*x-w4*t_),2));
 
-		}
+	for (var x=0; x<vertices.length; x+=3){
+		// vertices[x] = x0 - (K/k)*Amp*Math.sin(K*x - w*t_);
+		vertices[x+2] = Math.sqrt(Math.pow(Amp*Math.cos(x0*K - w*t_),2) + Math.pow(x0-(K/k)*Amp*Math.sin(K*x-w*t_),2)) 
+		+ Math.sqrt(Math.pow(Amp2*Math.cos(x0*K - w2*t_),2) + Math.pow(x0-(K/k2)*Amp*Math.sin(K*x-w2*t_),2))
+		+ Math.sqrt(Math.pow(Amp3*Math.cos(x0*K - w3*t_),2) + Math.pow(x0-(K/k3)*Amp*Math.sin(K*x-w3*t_),2))
+		+ Math.sqrt(Math.pow(Amp4*Math.cos(x0*K - w4*t_),2) + Math.pow(x0-(K/k4)*Amp*Math.sin(K*x-w4*t_),2));
 	}
 
 	// for (var x=0; x<vertices.length; x+=3){
