@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+</head>
+<body>
+	<script src="three.js-master/build/three.min.js"></script>
+	<script src="three.js-master/build/three.js"></script>
+	<script src="waves_fun.js"></script>
+	<script src="initiation.js"></script>
+	<!-- <script src="node_modules/fftw-js/src/FFTW.js" type="text/javascript" charset="utf-8" async defer></script> -->
+	<!-- <script src="node_modules/fft.js/lib/fft.js" type="text/javascript" charset="utf-8" async defer></script> -->
+
+	<script>
+
+		var camera, scene, renderer;
+		var geometry, material, mesh;
+		var Amp = 5;
+		var clock = new THREE.Clock();
+		var delta = 0;
+		var elapsedTime = 0; 
+// ======================================================
+		var i=0;
+		init();
+		var vertices = plane.geometry.attributes.position.array; // powinno być nazewnątrz, żeby nie wyliczać chyba każdego wierzchołka. Bierzemy x i y a potem ustawiamy mu z. To wystarczy dla każdego x, dla każdego y ustaw z(x,y,t)
+
+		// randomize_vertice_height(_geo);
+		// animate_nothing();
+		animate();
+// ======================================================
+		function init() {
+			scene = new THREE.Scene();
+
+			var w_width = window.innerWidth;
+			var w_height = window.innerHeight;
+//
+			set_camera(w_width, w_height);
+			create_plane(scene);
+
+			var light_target = THREE.Vector3( 0, 0, 6 );
+			set_light(scene, light_target);
+//
+			set_renderer(w_width, w_height);
+		}
+//
+
+	</script>
+</body>
+</html>
