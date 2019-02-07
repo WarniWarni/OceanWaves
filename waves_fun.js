@@ -48,18 +48,31 @@ function wave_function(){
 // }
 	var t = clock.getElapsedTime(); // time
 	getTotalSurface(t);
-
-
-
+	var wyn = 0;
+	wyn = calculateDerivativeX(t);
+	console.log(wyn);
 	plane.geometry.attributes.position.needsUpdate = true;
 	plane.geometry.computeVertexNormals();
 }
-function calculateDerivative(){
-	
+function calculateDerivativeX(t){
+	var derivative_field = [];
+	var d_x = 0;
+	for (var x=0; x<vertices.length; x+=3){
+		for (var i=0; i<Amps.length;i++){
+			d_x += getDerivX(x,x+1,t,Amps[i],Dd[i],omegs[i],Fee[i]);
+		}
+		derivative_field.push(x,x+1,d_x);
+	}
+	return derivative_field;
+}
+function getDerivX(x,y,t,A,D,omega,fi){
+	var xy_vec = new THREE.Vector2(x,y);
+	var D_x = D.x;
+	var dotProd = D.dot(xy_vec);
+	return omega*D_x*A*Math.cos(dotProd*omega+t*fi);
 }
 
 function getTotalSurface(t){
-	var surfaceVector = new THREE.Vector3();
 	for (var x=0;x<vertices.length;x+=3){
 		var totalSurface = 0;
 		for (var i=0; i<Amps.length; i++){
