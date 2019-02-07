@@ -16,34 +16,49 @@
 	}
 
 // Stałe i zbiory stałych
-	const A = 0.25; // amplitude of wave
-	const L = 10; // wavelength
-	const omega = 2*Math.PI/L;
-	const g = 9.81; // gravitational force
-	const S = 0.2; // speed of wave
-	const fi = S*2*L; // phase dependant of speed
-	const D = new THREE.Vector2( 1, 0 ); // wind direction vector
-	const k = 5;
-	//
+	
 	var Amps = [];
 	var Len = [];
 	var omegs = [];
 	var Spee = [];
 	var Fee = [];
 	var Dd = []
-	//	
-	for (var i=0; i<5; i++){
-		Amps.push(A*Math.abs(random_height()));
-			var Le = L*Math.abs(random_height());
-		Len.push(Le);
-		omegs.push(2*Math.PI/Le);
-			var Ss = S*Math.abs(random_height());
-		Spee.push(Ss);
-		Fee.push(Ss*2*Le);
-		Dd.push(new THREE.Vector2( Math.abs(random_height()), Math.abs(random_height())/2));
+//	clearing params
+	function clear_random_params(){
+		Amps.length = 0;
+		Len.length = 0;
+		omegs.length = 0;
+		Spee.length = 0;
+		Fee.length = 0;
+		Dd.length = 0;
+	}
+// setting random params
+	function set_random_params(){
+		clear_random_params();
+		for (var i=1; i<6; i++){
+			Amps.push(A/(2*i));
+				var Le = L-(L/(2*i));
+			Len.push(Le);
+			omegs.push(2*Math.PI/Le);
+				var Ss = S - (S/(2*i));
+			Spee.push(Ss);
+			Fee.push(Ss*2*Le);
+			Dd.push(new THREE.Vector2(D_x/i, D_y+(1/i)));
+		}
+
+		// for (var i=0; i<5; i++){
+		// 	Amps.push(A*Math.abs(random_height()/(2*i+1)));
+		// 		var Le = L+random_height();
+		// 	Len.push(Le);
+		// 	omegs.push(2*Math.PI/Le);
+		// 		var Ss = S+random_height()/(2*i+1);
+		// 	Spee.push(Ss);
+		// 	Fee.push(Ss*2*Le);
+		// 	Dd.push(new THREE.Vector2( D_x - Math.abs(random_height()/(2*i+1)), D_y + Math.abs(random_height()/(2*i+1))));
+		// }
 	}
 	// console.log("\nAmplitudy: "+Amps+"\ndługości fali: "+Len+"\nomegi: "+omegs+"\nspeeds: "+Spee+"\nprzesunięcia fazowe: "+Fee+"\nwiatr: "+Dd);
-	
+
 // init
 	function wave_function(){
 		var t = clock.getElapsedTime(); // time
@@ -111,6 +126,16 @@
 	}
 	function animate() {
 		wave_function();
+		var delta = clock.getDelta();
+		// controls.update(delta);
+
+		aGUI.onChange(function(value) {A=parameters.Amp; set_random_params();});
+		lGUI.onChange(function(value) {L=parameters.Length; set_random_params();});
+		sGUI.onChange(function(value) {S=parameters.Speed; set_random_params();});
+		kGUI.onChange(function(value) {k=parameters.kWsp; set_random_params();});
+		dxGUI.onChange(function(value) {D_x=parameters.d_x; set_random_params();});
+		dyGUI.onChange(function(value) {D_y=parameters.d_y; set_random_params();});
+
 		requestAnimationFrame(animate);
 		render_scene();
 	}

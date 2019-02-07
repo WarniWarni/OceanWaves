@@ -8,34 +8,70 @@
 	<script src="three.js-master/build/three.js"></script>
 	<script src="waves_fun.js"></script>
 	<script src="initiation.js"></script>
+	<script src="three.js-master/examples/js/controls/TrackballControls.js"></script>
+	<script src="three.js-master/examples/js/libs/dat.gui.min.js"></script>
 
 	<script>
-
+// basic wariables
 		var camera, scene, renderer;
 		var geometry, material, mesh;
 		var Amp = 5;
 		var clock = new THREE.Clock();
 		var delta = 0;
 		var elapsedTime = 0; 
-// ======================================================
-		var i=0;
+
+// initialization
+		var controls;
+
+		var A = 0.25; // amplitude of wave
+		var L = 10; // wavelength
+		var omega = 2*Math.PI/L;
+		var g = 9.81; // gravitational force
+		var S = 0.2; // speed of wave
+		var fi = S*2*L; // phase dependant of speed
+		var D_x = 1;
+		var D_y = 0;
+		var D = new THREE.Vector2( D_x, D_y ); // wind direction vector
+		var k = 5;
+// setting up GUI
+			var gui = new dat.GUI();
+			var Amp;
+			var Length;
+			var Speed;
+			var kWsp;
+			var d_x;
+			var d_y;
+			var parameters = {Amp:0.25, Length: 10, Speed: 0.2, kWsp: 5, d_x: 1, d_y: 0 };
+
+			var aGUI = gui.add(parameters, 'Amp').min(0.0).max(2.0).step(0.01).name("Amplituda podstawowa").listen();
+			var lGUI = gui.add(parameters, 'Length').min(0.0).max(50.0).step(0.2).name("Długość fali").listen();
+			var sGUI = gui.add(parameters, 'Speed').min(0.0).max(2).step(0.01).name("Szybkość fali").listen();
+			var kGUI = gui.add(parameters, 'kWsp').min(0.0).max(15).step(1).name("współczynnik K").listen();
+			var dxGUI = gui.add(parameters, 'd_x').min(0.0).max(1.0).step(0.001).name("Kierunek x wiatru").listen();
+			var dyGUI = gui.add(parameters, 'd_y').min(0.0).max(1.0).step(0.001).name("Kierunek y wiatru").listen();
+//
+		set_random_params();
+
 		init();
 		var vertices = plane.geometry.attributes.position.array; // powinno być nazewnątrz, żeby nie wyliczać chyba każdego wierzchołka. Bierzemy x i y a potem ustawiamy mu z. To wystarczy dla każdego x, dla każdego y ustaw z(x,y,t)
 		animate();
-// ======================================================
+// init_function
 		function init() {
 			scene = new THREE.Scene();
 
 			var w_width = window.innerWidth;
 			var w_height = window.innerHeight;
-//
+
 			set_camera(w_width, w_height);
 			create_plane(scene);
 
 			var light_target = THREE.Vector3( 0, 0, 6 );
 			set_light(scene, light_target);
-//
+
 			set_renderer(w_width, w_height);
+
+			// set_controls();
+
 		}
 //
 
