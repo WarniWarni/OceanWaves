@@ -16,13 +16,14 @@
 	}
 
 // Stałe i zbiory stałych
-	const A = 0.05; // amplitude of wave
+	const A = 0.25; // amplitude of wave
 	const L = 10; // wavelength
 	const omega = 2*Math.PI/L;
 	const g = 9.81; // gravitational force
 	const S = 0.2; // speed of wave
 	const fi = S*2*L; // phase dependant of speed
 	const D = new THREE.Vector2( 1, 0 ); // wind direction vector
+	const k = 5;
 	//
 	var Amps = [];
 	var Len = [];
@@ -41,16 +42,33 @@
 		Fee.push(Ss*2*Le);
 		Dd.push(new THREE.Vector2( Math.abs(random_height()), Math.abs(random_height())/2));
 	}
-	console.log("\nAmplitudy: "+Amps+"\ndługości fali: "+Len+"\nomegi: "+omegs+"\nspeeds: "+Spee+"\nprzesunięcia fazowe: "+Fee+"\nwiatr: "+Dd);
+	// console.log("\nAmplitudy: "+Amps+"\ndługości fali: "+Len+"\nomegi: "+omegs+"\nspeeds: "+Spee+"\nprzesunięcia fazowe: "+Fee+"\nwiatr: "+Dd);
+	
+// init
+	function wave_function(){
+		var t = clock.getElapsedTime(); // time
+		// getTotalSurface(t);
+		getKPowerSurface(t);
 
-function wave_function(){
+		plane.geometry.attributes.position.needsUpdate = true;
+		plane.geometry.computeVertexNormals();
+	}
 
-	var t = clock.getElapsedTime(); // time
-	getTotalSurface(t);
+// kth power
+	function getKPowerSurface(t){
+		for (var x=0; x<vertices.length; x+=3){
+			var totalSurface = 0;
+			for (var i=0; i<Amps.length; i++){
+				totalSurface = totalSurface + getKPowerState(x,x+1,t,Amps[i],Dd[i],omegs[i],Fee[i],k);
+			}
+			vertices[x+2] = totalSurface;
+		}
+	}
+	function getKPowerState(x,y,t,A,D,omega,fi,k){
+		var xy_vec = new THREE.Vector2(x, y);
+		return 2*A*Math.pow((Math.sin(D.dot(xy_vec)*omega+t*fi)+1)/2,k)
+	}
 
-	plane.geometry.attributes.position.needsUpdate = true;
-	plane.geometry.computeVertexNormals();
-}
 //	Derivatives
 	function calculateDerivativeX(t){
 		var derivative_field = [];
