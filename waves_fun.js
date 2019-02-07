@@ -13,7 +13,31 @@ function randomize_vertice_height(){
 	plane.geometry.attributes.position.needsUpdate = true;
 	plane.geometry.computeVertexNormals();
 }
-
+//
+const A = 0.25; // amplitude of wave
+const L = 15; // wavelength
+const omega = 2*Math.PI/L;
+const g = 9.81; // gravitational force
+const S = 0.2; // speed of wave
+const fi = S*2*L; // phase dependant of speed
+const D = new THREE.Vector2( 1, 0 ); // wind direction vector
+//
+var Amps = [];
+var Len = [];
+var omegs = [];
+var Spee = [];
+var Fee = [];
+//	
+for (var i=0; i<5; i++){
+	Amps.push(A*random_height());
+		var Le = L*random_height();
+	Len.push(Le);
+	omegs.push(2*Math.PI/Le);
+		var Ss = S*random_height();
+	Spee.push(Ss);
+	Fee.push(Ss*2*Le);
+}
+//
 function wave_function(){
 	// vertices[3k] = x1,x2..., vertices[3k+1] = y1,y2..., vertices[3k+2] = z1,z2...
 	// var vertices = plane.geometry.attributes.position.array; // powinno być nazewnątrz, żeby nie wyliczać chyba każdego wierzchołka. Bierzemy x i y a potem ustawiamy mu z. To wystarczy dla każdego x, dla każdego y ustaw z(x,y,t)
@@ -21,20 +45,15 @@ function wave_function(){
 	// }
 	var t = clock.getElapsedTime(); // time
 
-	const A = 0.25; // amplitude of wave
-	const L = 15; // wavelength
-	const omega = 2*Math.PI/L;
-	const g = 9.81; // gravitational force
-	const S = 0.2; // speed of wave
-	const fi = S*2*L; // phase dependant of speed
-	const D = new THREE.Vector2( 1, 0 ); // wind direction vector
-	//
-	var x = 1;
-	var y = 1;
-	//
+	
+//
 	for (x=0; x<vertices.length; x+=3){
-		var state = getStateOfWave(x,x+1,t,A,D,omega,fi);
+		var state = 0;
+		for (var i=0; i<Amps.length; i++){
+			state = state + getStateOfWave(x,x+1,t,Amps[i],D,omegs[i],Fee[i]);
+		}
 		vertices[x+2] = state;
+
 	}
 	plane.geometry.attributes.position.needsUpdate = true;
 	plane.geometry.computeVertexNormals();
