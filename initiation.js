@@ -15,7 +15,7 @@ function create_plane(scene){
 	var p_width = 60;
 	var p_height = 40;
 	var p_segmentsDepth = 30;
-	var p_segmentsWidth = 45;
+	var p_segmentsWidth = 40;
 
 	// var tex = new THREE.TextureLoader().load( '11.png' );
 
