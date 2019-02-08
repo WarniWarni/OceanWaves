@@ -24,7 +24,7 @@
 	var Fee = [];
 	var Dd = []
 //	clearing params
-	function clear_random_params(){
+	function clear_params(){
 		Amps.length = 0;
 		Len.length = 0;
 		omegs.length = 0;
@@ -33,9 +33,9 @@
 		Dd.length = 0;
 	}
 // setting random params
-	function set_random_params(){
-		clear_random_params();
-		for (var i=1; i<6; i++){
+	function set_params(){
+		clear_params();
+		for (var i=1; i<2; i++){
 			Amps.push(A/(2*i));
 				var Le = L-(L/(2*i));
 			Len.push(Le);
@@ -43,48 +43,92 @@
 				var Ss = S - (S/(2*i));
 			Spee.push(Ss);
 			Fee.push(Ss*2*Le);
-			Dd.push(new THREE.Vector2(D_x/i, D_y+(1/i)));
+			Dd.push(new THREE.Vector2(D_x,D_y));;
 		}
-
-		// for (var i=0; i<5; i++){
-		// 	Amps.push(A*Math.abs(random_height()/(2*i+1)));
-		// 		var Le = L+random_height();
-		// 	Len.push(Le);
-		// 	omegs.push(2*Math.PI/Le);
-		// 		var Ss = S+random_height()/(2*i+1);
-		// 	Spee.push(Ss);
-		// 	Fee.push(Ss*2*Le);
-		// 	Dd.push(new THREE.Vector2( D_x - Math.abs(random_height()/(2*i+1)), D_y + Math.abs(random_height()/(2*i+1))));
-		// }
 	}
-	// console.log("\nAmplitudy: "+Amps+"\ndługości fali: "+Len+"\nomegi: "+omegs+"\nspeeds: "+Spee+"\nprzesunięcia fazowe: "+Fee+"\nwiatr: "+Dd);
+
 
 // init
 	function wave_function(){
 		var t = clock.getElapsedTime(); // time
-		// getTotalSurface(t);
+		// var prev = savePrevious();
 		getKPowerSurface(t);
+		smoothen();
+		// kroczaca(prev);
 
-		plane.geometry.attributes.position.needsUpdate = true;
+		// getKPower2(t);
 		plane.geometry.computeVertexNormals();
+		plane.geometry.attributes.position.needsUpdate = true;
+		// plane.geometry.computeVertexNormals();
+	}
+// wygładzanie
+	function smoothen(){
+		for (var x =3; x<vertices.length; x+=3){
+			vertices[x+2] = (vertices[x+3+2] + vertices[x-3+2])/2;
+		}
+	}
+	function kroczaca(prev){
+		for (var x=0; x<vertices.length; x+=3){
+			vertices[x+2] = (prev[x+2]+vertices[x+2])/2;
+		}
+	}
+//
+// Drugie podjeście
+	function getKPower2(t){
+		for (var x=0; x<=vertices.length; x+=3){
+			for (var y=x*(vertices.length/41)+1; y<=(1+x)*vertices.length/41; y+=3){
+				var totalSurface = 0;
+				for (var i=0; i<Amps.length; i++){
+					totalSurface = totalSurface + getKPowerState(x,y,t,Amps[i],Dd[i],omegs[i],Fee[i],k);
+				}
+				vertices[y+1] = totalSurface ;
+			}
+		}
+	}
+//
+	function savePrevious(){
+		var previousSurface = vertices;
+		return previousSurface;
 	}
 
-// kth power
+// Kth power surface
 	function getKPowerSurface(t){
+		// var calculatedSurface = [];
 		for (var x=0; x<vertices.length; x+=3){
 			var totalSurface = 0;
 			for (var i=0; i<Amps.length; i++){
 				totalSurface = totalSurface + getKPowerState(x,x+1,t,Amps[i],Dd[i],omegs[i],Fee[i],k);
 			}
+			// calculatedSurface.push(x,x+1,totalSurface);
 			vertices[x+2] = totalSurface;
 		}
+		// return calculatedSurface;
 	}
 	function getKPowerState(x,y,t,A,D,omega,fi,k){
 		var xy_vec = new THREE.Vector2(x, y);
-		return 2*A*Math.pow((Math.sin(D.dot(xy_vec)*omega+t*fi)+1)/2,k)
+		var dotProd = D.dot(xy_vec);
+		return 2*A*Math.pow((Math.sin(dotProd*omega+t*fi)+1)/2,k)
+	}	
+// niepotrzebne
+//	Derivatives K X
+	function calculateKthDerivativeX(t){
+		var kDerivative_field = [];
+		for (var x=0; x<vertices.length; i+=3){
+			var kd_x = 0;
+			for (var i=0; i<Amps.length; i++){
+				kd_x = kd_x + getKthDerivX(x,x+1,t,Amps[i],Dd[i],omegs[i],Fee[i],k);
+			}
+			kDerivative_field.push(x,x+1,kd_x);
+		}
+		return derivative_field;
 	}
-
-//	Derivatives
+	function getKthDerivX(x,y,t,A,D,omega,fi,k){
+		var xy_vec = new THREE.Vector2( x, y );
+		var dotProd = D.dot(xy_vec);
+		var D_x = D.x;
+		return k*D_x*omega*A* Math.pow( (Math.sin(dotProd*omega + t*fi )+1)/2 , k-1) * Math.cos(dotProd*omega + t*fi);
+	}
+// derivative X
 	function calculateDerivativeX(t){
 		var derivative_field = [];
 		var d_x = 0;
@@ -102,7 +146,7 @@
 		var dotProd = D.dot(xy_vec);
 		return omega*D_x*A*Math.cos(dotProd*omega+t*fi);
 	}
-
+//
 //	Calculate Z // k = 1
 	function getTotalSurface(t){
 		for (var x=0;x<vertices.length;x+=3){
@@ -129,12 +173,16 @@
 		var delta = clock.getDelta();
 		// controls.update(delta);
 
-		aGUI.onChange(function(value) {A=parameters.Amp; set_random_params();});
-		lGUI.onChange(function(value) {L=parameters.Length; set_random_params();});
-		sGUI.onChange(function(value) {S=parameters.Speed; set_random_params();});
-		kGUI.onChange(function(value) {k=parameters.kWsp; set_random_params();});
-		dxGUI.onChange(function(value) {D_x=parameters.d_x; set_random_params();});
-		dyGUI.onChange(function(value) {D_y=parameters.d_y; set_random_params();});
+
+		aGUI.onChange(function(value) {A=parameters.Amp; set_params();});
+		lGUI.onChange(function(value) {L=parameters.Length; set_params();});
+		sGUI.onChange(function(value) {S=parameters.Speed; set_params();});
+		kGUI.onChange(function(value) {k=parameters.kWsp; set_params();});
+		dxGUI.onChange(function(value) {D_x=parameters.d_x; set_params();});
+		dyGUI.onChange(function(value) {D_y=parameters.d_y; set_params();});
+
+		plane.geometry.computeVertexNormals();
+
 
 		requestAnimationFrame(animate);
 		render_scene();

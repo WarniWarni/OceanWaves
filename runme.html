@@ -32,7 +32,7 @@
 		var D_x = 1;
 		var D_y = 0;
 		var D = new THREE.Vector2( D_x, D_y ); // wind direction vector
-		var k = 5;
+		var k = 2;
 // setting up GUI
 			var gui = new dat.GUI();
 			var Amp;
@@ -41,20 +41,24 @@
 			var kWsp;
 			var d_x;
 			var d_y;
-			var parameters = {Amp:0.25, Length: 10, Speed: 0.2, kWsp: 5, d_x: 1, d_y: 0 };
+			var parameters = {Amp:0.25, Length: 10, Speed: 0.2, kWsp: 3, d_x: 1, d_y: 0, seg: 20 };
 
-			var aGUI = gui.add(parameters, 'Amp').min(0.0).max(2.0).step(0.01).name("Amplituda podstawowa").listen();
-			var lGUI = gui.add(parameters, 'Length').min(0.0).max(50.0).step(0.2).name("Długość fali").listen();
-			var sGUI = gui.add(parameters, 'Speed').min(0.0).max(2).step(0.01).name("Szybkość fali").listen();
-			var kGUI = gui.add(parameters, 'kWsp').min(0.0).max(15).step(1).name("współczynnik K").listen();
+			var aGUI = gui.add(parameters, 'Amp').min(0.0).max(5).step(0.01).name("Amplituda podstawowa").listen();
+			var lGUI = gui.add(parameters, 'Length').min(0.0).max(200.0).step(0.2).name("Długość fali").listen();
+			var sGUI = gui.add(parameters, 'Speed').min(0.0).max(0.3).step(0.001).name("Szybkość fali").listen();
+			var kGUI = gui.add(parameters, 'kWsp').min(0.0).max(10).step(1).name("współczynnik K").listen();
 			var dxGUI = gui.add(parameters, 'd_x').min(0.0).max(1.0).step(0.001).name("Kierunek x wiatru").listen();
 			var dyGUI = gui.add(parameters, 'd_y').min(0.0).max(1.0).step(0.001).name("Kierunek y wiatru").listen();
-//
-		set_random_params();
+			//
+
+		set_params();
 
 		init();
 		var vertices = plane.geometry.attributes.position.array; // powinno być nazewnątrz, żeby nie wyliczać chyba każdego wierzchołka. Bierzemy x i y a potem ustawiamy mu z. To wystarczy dla każdego x, dla każdego y ustaw z(x,y,t)
+		// console.log("vertices: "+vertices.length);
+
 		animate();
+
 // init_function
 		function init() {
 			scene = new THREE.Scene();
