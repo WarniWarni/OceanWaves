@@ -5,7 +5,7 @@ function set_camera(w_width, w_height){
 	var c_near = 0.01; // bliższa płaszczyzna stożka ściętego
 	var c_far = 1000; // dalsza płaszczyzna stożka ściętego
 	camera = new THREE.PerspectiveCamera( c_fow, c_aspect, c_near, c_far );
-	camera.position.set( 0, -50, 30 );
+	camera.position.set( 0, -30, 30 );
 	camera.lookAt(scene.position);
 	// console.log(camera.position);
 }
@@ -22,7 +22,9 @@ function create_plane(scene){
 	geometry = new THREE.PlaneBufferGeometry(p_width, p_height, p_segmentsWidth, p_segmentsDepth );
 	geometry.dynamic = true;
 	geometry.verticesNeedUpdate = true;
+	geometry.computeBoundingSphere();
 	geometry.computeVertexNormals();
+	geometry.computeFaceNormals();
 	// geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
 	// material = new THREE.MeshPhongMaterial({side:THREE.DoubleSide, displacementMap:tex, displacementScale: 10, displacementBias:0 });
 	var colorr = new THREE.Color();
@@ -31,9 +33,14 @@ function create_plane(scene){
 
 	// geometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(geometry.attributes.position.count*3)),3);
 	// geometry.attributes.color.count = geometry.attributes.position.count;
+	var texture = new THREE.TextureLoader().load('texture_2.jpg');
+	texture.wrapS = THREE.RepeatWrapping;
+	texture.wrapT = THREE.RepeatWrapping;
+	texture.repeat.set(4,4);
 
-	material = new THREE.MeshLambertMaterial({color: colorr,side:THREE.DoubleSide,reflectivity:0.7, combine:THREE.AddOperation, emissive:0x003fff, emissiveIntensity: 0.2, opacity: 0.9, precision: "highp"});//, vertexColors: geometry.attributes.color});
+	material = new THREE.MeshLambertMaterial({color: colorr, map:texture, refractionRatio: 0.985, opacity: 0.9, side:THREE.DoubleSide,reflectivity:0.7, combine:THREE.AddOperation, emissive:0x003fff, emissiveIntensity: 0.2, precision: "highp", dithering: true});//, vertexColors: geometry.attributes.color});
 
+//  LambertMaterial
 	material.flatShading = false;
 
 
@@ -42,6 +49,8 @@ function create_plane(scene){
 	plane.receiveShadow = true;
 	plane.castShadow = true;
 	scene.add(plane);
+
+
 }
 // ======================================================
 
@@ -79,7 +88,7 @@ function set_light(scene, sphere_mesh){
     spotLight.shadow.camera.fov = 130;
     spotLight.target = plane;
     spotLight.distance = 0;
-	scene.add(spotLight);
+	// scene.add(spotLight);
 
 	var spotLight2 = new THREE.SpotLight(0xffffff);
 	spotLight2.position.set(80,0,100);
@@ -89,15 +98,41 @@ function set_light(scene, sphere_mesh){
 	spotLight2.shadow.camera.fov = 130;
 	spotLight2.target = plane;
 	spotLight2.distance = 0;
-	scene.add(spotLight2);
+	// scene.add(spotLight2);
 
-	var point_light_helper = new THREE.PointLightHelper(point_light, 0.3);
-	var helper = new THREE.CameraHelper(point_light.shadow.camera);
+	var spotLight3 = new THREE.SpotLight(0xffffff);
+	spotLight3.position.set(0,0,50);
+	spotLight3.castShadow = true;
+	spotLight3.shadow.camera.near = 2;
+	spotLight3.shadow.camera.far = 200;
+	spotLight3.shadow.camera.fov = 130;
+	spotLight3.target = plane;
+	spotLight3.distance = 0;
+
+	// scene.add(spotLight3);
+
+	
+	// var helper = new THREE.CameraHelper(point_light.shadow.camera);
 	
 	scene.add(ambient_light);
 	scene.add(point_light);
-	scene.add(helper);
-	scene.add(point_light_helper);}
+	// scene.add(helper);
+
+
+	var point_light2 = new THREE.PointLight( 0xffef47, 100, 0, 2 );
+	// point_light2.castShadow = true;
+	point_light2.position.set( -30, 20, 15 );
+	// scene.add(point_light2);
+	// var point_light_helper = new THREE.PointLightHelper(point_light2, 0.3);
+	// scene.add(point_light_helper);
+
+	var point_light3 = new THREE.PointLight(0xffffff, 10,0,2);
+	// point_light3.castShadow = true;	
+	point_light3.position.set(0,-20,5);
+	scene.add(point_light3);
+
+
+}
 // 
 function set_renderer(w_width, w_height){
 	// renderer

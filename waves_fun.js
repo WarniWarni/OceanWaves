@@ -1,4 +1,7 @@
 // random
+	function noise(min, max){
+		return Math.random()*(max-min+1)+min;
+	}
 	function random_height(){ // normal distribution
 	    var u = 0;
 	    var v = 0;
@@ -6,6 +9,7 @@
 	    while(v === 0) v = Math.random();
 	    return Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
 	}
+
 	function randomize_vertice_height(){
 
 		for (var i=0; i<vertices.length; i+=3) {
@@ -33,20 +37,57 @@
 		Dd.length = 0;
 	}
 // setting random params
-	function set_params(){
-		clear_params();
-		for (var i=1; i<3; i++){
-			Amps.push(A/(2*i));
-				var Le = L-(L/(2*i));
-			Len.push(Le);
-			omegs.push(2*Math.PI/Le);
-				var Ss = S - (S/(2*i));
-			Spee.push(Ss);
-			Fee.push(Ss*2*Le);
-			D_x =(D_x+random_height()/3)/i;
-			D_y =(D_y+random_height()/6)/i;
-			Dd.push(new THREE.Vector2(D_x,D_y));;
+	function set_param_Amps(wave_num){
+		Amps.length = 0;
+		for (var i=1; i<wave_num; i++){
+			//
+			// Amps.push(noise(A/2, 2*A));
+			// Amps.push(A/(i));
+
+			Amps.push(A/(2*i*i));
 		}
+	}
+	function set_param_Length(wave_num){
+		Len.length = 0;
+		omegs.length = 0;
+		for (var i=1; i<wave_num; i++){
+			// var Le = 3*Amps[i];
+			// var Le = noise(L/2, 2*L);
+			var Le = L/i;
+			Len.push(Le);
+			omegs.push(Math.sqrt(9.8*2*Math.PI/Le));
+		}
+		console.log(Len.toString());
+		console.log("---------");
+	}
+	function set_param_Speed(wave_num){
+
+		Spee.length = 0;
+		Fee.length = 0;
+		for (var i=1; i<wave_num; i++){
+			var Ss = S*(i);
+			Spee.push(Ss);
+			Fee.push(Ss*2*Len[i-1]);
+		}
+	}
+	function set_param_D(wave_num){
+		Dd.length = 0;
+		for (var i=1; i<wave_num; i++){
+			D_x =(D_x+(random_height()*2/3)/i);
+			D_y =(D_y+(random_height()*2/6)/i);
+			Dd.push(new THREE.Vector2(D_x,D_y));
+		}
+	}
+	function set_wav_num(wave_num){
+		set_params(wave_num);
+	}
+
+	function set_params(wave_num){
+		set_param_Amps(wave_num);
+		set_param_Length(wave_num);
+		set_param_Speed(wave_num);
+		set_param_D(wave_num);
+
 	}
 
 // colorize
@@ -64,20 +105,17 @@
 		plane.geometry.verticesNeedUpdate = true;
 	}
 
+
 // init
 	function wave_function(){
 		var t = clock.getElapsedTime(); // time
-		// var prev = savePrevious();
 		getKPowerSurface(t);
 		smoothen();
-		// calcAvg();
-		// kroczaca(prev);
-		// colorizeVertices();
 
-		// getKPower2(t);
 		plane.geometry.computeVertexNormals();
+		plane.geometry.computeFaceNormals();
+		// vertexHelper.update();
 		plane.geometry.attributes.position.needsUpdate = true;
-		// plane.geometry.computeVertexNormals();
 	}
 // AVG
 	function calcAvg(){
@@ -107,7 +145,7 @@
 			colors.setXYZ(i, color.r, color.g, color.b);
 		}
 	}
-	
+//
 	function calculateVertexColor(z, sum_pos){
 		// 40- 170 // 2.8
 		var vertexLightness = 0;
@@ -124,7 +162,7 @@
 		}
 		console.log(vertexLightness);
 		return vertexLightness;
-
+//
 	}
 	function smoothen(){
 		for (var x =3; x<vertices.length; x+=3){
@@ -160,6 +198,8 @@
 		// var calculatedSurface = [];
 		for (var x=0; x<vertices.length; x+=3){
 			var totalSurface = 0;
+			for (var j=0; j<Dd.length; j++){
+			}
 			for (var i=0; i<Amps.length; i++){
 				totalSurface = totalSurface + getKPowerState(x,x+1,t,Amps[i],Dd[i],omegs[i],Fee[i],k);
 			}
@@ -230,6 +270,8 @@
 
 // render, animate
 	function render_scene(){
+		plane.geometry.computeVertexNormals();
+
 		renderer.render(scene, camera);
 	}
 	function animate() {
@@ -238,14 +280,18 @@
 		// controls.update(delta);
 
 
-		aGUI.onChange(function(value) {A=parameters.Amp; set_params();});
-		lGUI.onChange(function(value) {L=parameters.Length; set_params();});
-		sGUI.onChange(function(value) {S=parameters.Speed; set_params();});
-		kGUI.onChange(function(value) {k=parameters.kWsp; set_params();});
-		dxGUI.onChange(function(value) {D_x=parameters.d_x; set_params();});
-		dyGUI.onChange(function(value) {D_y=parameters.d_y; set_params();});
-
+		aGUI.onChange(function(value) {A=parameters.Amp; set_param_Amps(wave_num);});
+		lGUI.onChange(function(value) {L=parameters.Length; set_param_Length(wave_num);});
+		sGUI.onChange(function(value) {S=parameters.Speed; set_param_Speed(wave_num)});
+		kGUI.onChange(function(value) {k=parameters.kWsp; wave_function();});
+		dxGUI.onChange(function(value) {D_x=parameters.d_x; set_param_D(wave_num);});
+		dyGUI.onChange(function(value) {D_y=parameters.d_y; set_param_D(wave_num);});
+		waveGUI.onChange(function(value) {wave_num = parameters.wave_num; set_wav_num(wave_num);})
 		plane.geometry.computeVertexNormals();
+		plane.geometry.computeFaceNormals();
+
+		// vertexHelper.needsUpdate = true;
+
 		// plane.material.needsUpdate = true;
 
 		requestAnimationFrame(animate);

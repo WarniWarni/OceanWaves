@@ -10,6 +10,7 @@
 	<script src="initiation.js"></script>
 	<script src="three.js-master/examples/js/controls/TrackballControls.js"></script>
 	<script src="three.js-master/examples/js/libs/dat.gui.min.js"></script>
+	<script src="perlin_noise.js"></script>
 
 	<script>
 // basic wariables
@@ -41,17 +42,19 @@
 			var kWsp;
 			var d_x;
 			var d_y;
-			var parameters = {Amp:0.25, Length: 10, Speed: 0.2, kWsp: 3, d_x: 1, d_y: 0, seg: 20 };
+			var wave_num;
+			var parameters = {Amp:0.25, Length: 10, Speed: 0.02, kWsp: 3, d_x: 1, d_y: 0, seg: 20 , wave_num: 3};
 
 			var aGUI = gui.add(parameters, 'Amp').min(0.0).max(5).step(0.01).name("Amplituda podstawowa").listen();
-			var lGUI = gui.add(parameters, 'Length').min(0.0).max(200.0).step(0.2).name("Długość fali").listen();
-			var sGUI = gui.add(parameters, 'Speed').min(0.0).max(0.3).step(0.001).name("Szybkość fali").listen();
-			var kGUI = gui.add(parameters, 'kWsp').min(0.0).max(10).step(1).name("współczynnik K").listen();
-			var dxGUI = gui.add(parameters, 'd_x').min(0.0).max(1.0).step(0.001).name("Kierunek x wiatru").listen();
-			var dyGUI = gui.add(parameters, 'd_y').min(0.0).max(1.0).step(0.001).name("Kierunek y wiatru").listen();
+			var lGUI = gui.add(parameters, 'Length').min(0.0).max(100.0).step(0.2).name("Długość fali").listen();
+			var sGUI = gui.add(parameters, 'Speed').min(0.0).max(0.1).step(0.0001).name("Szybkość fali").listen();
+			var kGUI = gui.add(parameters, 'kWsp').min(1).max(6).step(1).name("współczynnik K").listen();
+			var dxGUI = gui.add(parameters, 'd_x').min(-1.0).max(1.0).step(0.001).name("Kierunek x wiatru").listen();
+			var dyGUI = gui.add(parameters, 'd_y').min(-1.0).max(1.0).step(0.001).name("Kierunek y wiatru").listen();
+			var waveGUI = gui.add(parameters, 'wave_num').min(2).max(6).step(1).name("ilość składowych").listen();
 			//
 
-		set_params();
+		set_params(3);
 
 		init();
 		var vertices = plane.geometry.attributes.position.array; // powinno być nazewnątrz, żeby nie wyliczać chyba każdego wierzchołka. Bierzemy x i y a potem ustawiamy mu z. To wystarczy dla każdego x, dla każdego y ustaw z(x,y,t)
@@ -60,6 +63,10 @@
 		// var color = new THREE.Color();
 		// var colors = plane.geometry.attributes.color;
 		// colorize();
+
+		// var vertexHelper = new THREE.VertexNormalsHelper(plane, 2, 0xffffff, 1);
+		// scene.add(vertexHelper);
+
 		animate();
 
 // init_function
