@@ -14,7 +14,7 @@ function create_plane(scene){
 	// plane
 	var p_width = 60;
 	var p_height = 40;
-	var p_segmentsDepth = 80;
+	var p_segmentsDepth = 30;
 	var p_segmentsWidth = Math.round((3/2)*p_segmentsDepth);
 
 	// var tex = new THREE.TextureLoader().load( '11.png' );
@@ -23,9 +23,19 @@ function create_plane(scene){
 	geometry.dynamic = true;
 	geometry.verticesNeedUpdate = true;
 	geometry.computeVertexNormals();
+	// geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
 	// material = new THREE.MeshPhongMaterial({side:THREE.DoubleSide, displacementMap:tex, displacementScale: 10, displacementBias:0 });
-	material = new THREE.MeshPhongMaterial({side:THREE.DoubleSide});
-	material.flatShading = true;
+	var colorr = new THREE.Color();
+	colorr.setHSL(157/240,235/240,155/240);
+	var col = 0x003fff;
+
+	// geometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(geometry.attributes.position.count*3)),3);
+	// geometry.attributes.color.count = geometry.attributes.position.count;
+
+	material = new THREE.MeshLambertMaterial({color: colorr,side:THREE.DoubleSide,reflectivity:0.7, combine:THREE.AddOperation, emissive:0x003fff, emissiveIntensity: 0.2, opacity: 0.9, precision: "highp"});//, vertexColors: geometry.attributes.color});
+
+	material.flatShading = false;
+
 
 	plane = new THREE.Mesh(geometry, material);
 
@@ -62,7 +72,7 @@ function set_light(scene, sphere_mesh){
 	point_light.castShadow = true;
 
     var spotLight = new THREE.SpotLight(0xffffff);
-    spotLight.position.set(-80, 0, 10);
+    spotLight.position.set(-80, 0, 60);
     spotLight.castShadow = true;
     spotLight.shadow.camera.near = 2;
     spotLight.shadow.camera.far = 200;
@@ -70,6 +80,16 @@ function set_light(scene, sphere_mesh){
     spotLight.target = plane;
     spotLight.distance = 0;
 	scene.add(spotLight);
+
+	var spotLight2 = new THREE.SpotLight(0xffffff);
+	spotLight2.position.set(80,0,100);
+	spotLight2.castShadow = true;
+	spotLight2.shadow.camera.near = 2;
+	spotLight2.shadow.camera.far = 200;
+	spotLight2.shadow.camera.fov = 130;
+	spotLight2.target = plane;
+	spotLight2.distance = 0;
+	scene.add(spotLight2);
 
 	var point_light_helper = new THREE.PointLightHelper(point_light, 0.3);
 	var helper = new THREE.CameraHelper(point_light.shadow.camera);
@@ -82,7 +102,7 @@ function set_light(scene, sphere_mesh){
 function set_renderer(w_width, w_height){
 	// renderer
 	renderer = new THREE.WebGLRenderer( {antialias: true, alpha: true} );
-	renderer.setClearColor(0x0104ff, 0.8); // ustawienie koloru tła i przezroczystości
+	renderer.setClearColor(0x71a4ff, 0.8); // ustawienie koloru tła i przezroczystości
 	renderer.shadowMap.enabled = true;
 	renderer.setSize(w_width, w_height);
 	document.body.appendChild(renderer.domElement);}

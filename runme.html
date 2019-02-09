@@ -56,7 +56,10 @@
 		init();
 		var vertices = plane.geometry.attributes.position.array; // powinno być nazewnątrz, żeby nie wyliczać chyba każdego wierzchołka. Bierzemy x i y a potem ustawiamy mu z. To wystarczy dla każdego x, dla każdego y ustaw z(x,y,t)
 		// console.log("vertices: "+vertices.length);
-
+		var positions = plane.geometry.attributes.position;
+		// var color = new THREE.Color();
+		// var colors = plane.geometry.attributes.color;
+		// colorize();
 		animate();
 
 // init_function
@@ -79,6 +82,6 @@
 		}
 //
 
-	</script>
+</script>
 </body>
 </html>

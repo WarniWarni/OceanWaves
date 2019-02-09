@@ -35,7 +35,7 @@
 // setting random params
 	function set_params(){
 		clear_params();
-		for (var i=1; i<2; i++){
+		for (var i=1; i<3; i++){
 			Amps.push(A/(2*i));
 				var Le = L-(L/(2*i));
 			Len.push(Le);
@@ -43,10 +43,26 @@
 				var Ss = S - (S/(2*i));
 			Spee.push(Ss);
 			Fee.push(Ss*2*Le);
+			D_x =(D_x+random_height()/3)/i;
+			D_y =(D_y+random_height()/6)/i;
 			Dd.push(new THREE.Vector2(D_x,D_y));;
 		}
 	}
 
+// colorize
+	function colorizeVertices(){
+		var sum_pos = calcAvg();
+		var lightness = [];
+		var newColor = new THREE.Color();
+		for (var x = 0; x<vertices.length; x+=3){
+			// lightness.push(calculateVertexColor(vertices[x+2], sum_pos));
+			var col = calculateVertexColor(vertices[x+2], sum_pos);
+			newColor.setHSL(157/240,235/240,col);
+			// plane.geometry.faces[x].vertexColors[x] = newColor;
+			console.log(newColor);
+		}
+		plane.geometry.verticesNeedUpdate = true;
+	}
 
 // init
 	function wave_function(){
@@ -54,17 +70,65 @@
 		// var prev = savePrevious();
 		getKPowerSurface(t);
 		smoothen();
+		// calcAvg();
 		// kroczaca(prev);
+		// colorizeVertices();
 
 		// getKPower2(t);
 		plane.geometry.computeVertexNormals();
 		plane.geometry.attributes.position.needsUpdate = true;
 		// plane.geometry.computeVertexNormals();
 	}
-// wygładzanie
+// AVG
+	function calcAvg(){
+		var count = 0;
+		var sum = 0;
+		var count_pos = 0;
+		var sum_pos = 0;
+		for (var x=0;x<vertices.length;x+=3){
+			count++;
+			sum+=vertices[x+2];
+
+			if (vertices[x+2]>0){
+				count_pos++;
+				sum_pos+=vertices[x+2];
+			}
+		}
+		sum_pos = sum_pos/count_pos;
+		sum = (sum+1)/count;
+		// console.log("średnia wysokość: "+sum);
+		// console.log("średnia dodatnia wysokość: "+sum_pos);
+		return sum_pos;
+//
+}
+	function colorize(){
+		for (var i=0; i<positions.count;i++){
+			color.setHSL = (157/240, 235/240, calculateVertexColor(positions.getZ(i),calcAvg()));
+			colors.setXYZ(i, color.r, color.g, color.b);
+		}
+	}
+	
+	function calculateVertexColor(z, sum_pos){
+		// 40- 170 // 2.8
+		var vertexLightness = 0;
+		if (z>2*sum_pos) {
+			vertexLightness = 170/240;
+		}
+		if (z<sum_pos/2){
+			vertexLightness = 40/240;
+		}
+		if (z>sum_pos/2 && z<2*sum_pos){
+			var Aa = (138*6+1)/(6*sum_pos*sum_pos);
+			var Bb = (31*3+1)/3;
+			vertexLightness = (Aa*z*z+Bb)/240;
+		}
+		console.log(vertexLightness);
+		return vertexLightness;
+
+	}
 	function smoothen(){
 		for (var x =3; x<vertices.length; x+=3){
-			vertices[x+2] = (vertices[x+3+2] + vertices[x-3+2])/2;
+			vertices[x+2] = Math.pow(vertices[x+3+2] * vertices[x-3+2],1/2);
 		}
 	}
 	function kroczaca(prev){
@@ -182,7 +246,7 @@
 		dyGUI.onChange(function(value) {D_y=parameters.d_y; set_params();});
 
 		plane.geometry.computeVertexNormals();
-
+		// plane.material.needsUpdate = true;
 
 		requestAnimationFrame(animate);
 		render_scene();
