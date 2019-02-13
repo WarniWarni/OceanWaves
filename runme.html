@@ -10,7 +10,6 @@
 	<script src="initiation.js"></script>
 	<script src="three.js-master/examples/js/controls/TrackballControls.js"></script>
 	<script src="three.js-master/examples/js/libs/dat.gui.min.js"></script>
-	<script src="perlin_noise.js"></script>
 
 	<script>
 // basic wariables
@@ -58,14 +57,7 @@
 
 		init();
 		var vertices = plane.geometry.attributes.position.array; // powinno być nazewnątrz, żeby nie wyliczać chyba każdego wierzchołka. Bierzemy x i y a potem ustawiamy mu z. To wystarczy dla każdego x, dla każdego y ustaw z(x,y,t)
-		// console.log("vertices: "+vertices.length);
 		var positions = plane.geometry.attributes.position;
-		// var color = new THREE.Color();
-		// var colors = plane.geometry.attributes.color;
-		// colorize();
-
-		// var vertexHelper = new THREE.VertexNormalsHelper(plane, 2, 0xffffff, 1);
-		// scene.add(vertexHelper);
 
 		animate();
 
@@ -84,10 +76,7 @@
 
 			set_renderer(w_width, w_height);
 
-			// set_controls();
-
 		}
-//
 
 </script>
 </body>

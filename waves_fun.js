@@ -1,24 +1,11 @@
 // random
-	function noise(min, max){
-		return Math.random()*(max-min+1)+min;
-	}
-	function random_height(){ // normal distribution
+	function random_(){ // normal distribution
 	    var u = 0;
 	    var v = 0;
 	    while(u === 0) u = Math.random(); //Converting [0,1) to (0,1)
 	    while(v === 0) v = Math.random();
 	    return Math.sqrt( -2.0 * Math.log( u ) ) * Math.cos( 2.0 * Math.PI * v );
 	}
-
-	function randomize_vertice_height(){
-
-		for (var i=0; i<vertices.length; i+=3) {
-			vertices[i+2] = random_height();
-		}
-		plane.geometry.attributes.position.needsUpdate = true;
-		plane.geometry.computeVertexNormals();
-	}
-
 // Stałe i zbiory stałych
 	
 	var Amps = [];
@@ -27,23 +14,11 @@
 	var Spee = [];
 	var Fee = [];
 	var Dd = []
-//	clearing params
-	function clear_params(){
-		Amps.length = 0;
-		Len.length = 0;
-		omegs.length = 0;
-		Spee.length = 0;
-		Fee.length = 0;
-		Dd.length = 0;
-	}
-// setting random params
+
+// setting params
 	function set_param_Amps(wave_num){
 		Amps.length = 0;
 		for (var i=1; i<wave_num; i++){
-			//
-			// Amps.push(noise(A/2, 2*A));
-			// Amps.push(A/(i));
-
 			Amps.push(A/(2*i*i));
 		}
 	}
@@ -51,14 +26,11 @@
 		Len.length = 0;
 		omegs.length = 0;
 		for (var i=1; i<wave_num; i++){
-			// var Le = 3*Amps[i];
-			// var Le = noise(L/2, 2*L);
 			var Le = L/i;
 			Len.push(Le);
 			omegs.push(Math.sqrt(9.8*2*Math.PI/Le));
 		}
-		console.log(Len.toString());
-		console.log("---------");
+
 	}
 	function set_param_Speed(wave_num){
 
@@ -73,8 +45,8 @@
 	function set_param_D(wave_num){
 		Dd.length = 0;
 		for (var i=1; i<wave_num; i++){
-			D_x =(D_x+(random_height()*2/3)/i);
-			D_y =(D_y+(random_height()*2/6)/i);
+			D_x =(D_x+(random_()*2/3)/i);
+			D_y =(D_y+(random_()*2/6)/i);
 			Dd.push(new THREE.Vector2(D_x,D_y));
 		}
 	}
@@ -87,110 +59,23 @@
 		set_param_Length(wave_num);
 		set_param_Speed(wave_num);
 		set_param_D(wave_num);
-
 	}
-
-// colorize
-	function colorizeVertices(){
-		var sum_pos = calcAvg();
-		var lightness = [];
-		var newColor = new THREE.Color();
-		for (var x = 0; x<vertices.length; x+=3){
-			// lightness.push(calculateVertexColor(vertices[x+2], sum_pos));
-			var col = calculateVertexColor(vertices[x+2], sum_pos);
-			newColor.setHSL(157/240,235/240,col);
-			// plane.geometry.faces[x].vertexColors[x] = newColor;
-			console.log(newColor);
-		}
-		plane.geometry.verticesNeedUpdate = true;
-	}
-
 
 // init
 	function wave_function(){
-		var t = clock.getElapsedTime(); // time
+		var t = clock.getElapsedTime();
 		getKPowerSurface(t);
 		smoothen();
 
 		plane.geometry.computeVertexNormals();
 		plane.geometry.computeFaceNormals();
-		// vertexHelper.update();
 		plane.geometry.attributes.position.needsUpdate = true;
 	}
-// AVG
-	function calcAvg(){
-		var count = 0;
-		var sum = 0;
-		var count_pos = 0;
-		var sum_pos = 0;
-		for (var x=0;x<vertices.length;x+=3){
-			count++;
-			sum+=vertices[x+2];
 
-			if (vertices[x+2]>0){
-				count_pos++;
-				sum_pos+=vertices[x+2];
-			}
-		}
-		sum_pos = sum_pos/count_pos;
-		sum = (sum+1)/count;
-		// console.log("średnia wysokość: "+sum);
-		// console.log("średnia dodatnia wysokość: "+sum_pos);
-		return sum_pos;
-//
-}
-	function colorize(){
-		for (var i=0; i<positions.count;i++){
-			color.setHSL = (157/240, 235/240, calculateVertexColor(positions.getZ(i),calcAvg()));
-			colors.setXYZ(i, color.r, color.g, color.b);
-		}
-	}
-//
-	function calculateVertexColor(z, sum_pos){
-		// 40- 170 // 2.8
-		var vertexLightness = 0;
-		if (z>2*sum_pos) {
-			vertexLightness = 170/240;
-		}
-		if (z<sum_pos/2){
-			vertexLightness = 40/240;
-		}
-		if (z>sum_pos/2 && z<2*sum_pos){
-			var Aa = (138*6+1)/(6*sum_pos*sum_pos);
-			var Bb = (31*3+1)/3;
-			vertexLightness = (Aa*z*z+Bb)/240;
-		}
-		console.log(vertexLightness);
-		return vertexLightness;
-//
-	}
 	function smoothen(){
 		for (var x =3; x<vertices.length; x+=3){
 			vertices[x+2] = Math.pow(vertices[x+3+2] * vertices[x-3+2],1/2);
 		}
-	}
-	function kroczaca(prev){
-		for (var x=0; x<vertices.length; x+=3){
-			vertices[x+2] = (prev[x+2]+vertices[x+2])/2;
-		}
-	}
-//
-// Drugie podjeście
-	function getKPower2(t){
-		for (var x=0; x<=vertices.length; x+=3){
-			for (var y=x*(vertices.length/41)+1; y<=(1+x)*vertices.length/41; y+=3){
-				var totalSurface = 0;
-				for (var i=0; i<Amps.length; i++){
-					totalSurface = totalSurface + getKPowerState(x,y,t,Amps[i],Dd[i],omegs[i],Fee[i],k);
-				}
-				vertices[y+1] = totalSurface ;
-			}
-		}
-	}
-//
-	function savePrevious(){
-		var previousSurface = vertices;
-		return previousSurface;
 	}
 
 // Kth power surface
@@ -211,7 +96,7 @@
 	function getKPowerState(x,y,t,A,D,omega,fi,k){
 		var xy_vec = new THREE.Vector2(x, y);
 		var dotProd = D.dot(xy_vec);
-		return 2*A*Math.pow((Math.sin(dotProd*omega+t*fi)+1)/2,k)
+		return Math.sqrt(k)*2*A*Math.pow((Math.sin(dotProd*omega+t*fi)+1)/2,k)
 	}	
 // niepotrzebne
 //	Derivatives K X
@@ -277,8 +162,6 @@
 	function animate() {
 		wave_function();
 		var delta = clock.getDelta();
-		// controls.update(delta);
-
 
 		aGUI.onChange(function(value) {A=parameters.Amp; set_param_Amps(wave_num);});
 		lGUI.onChange(function(value) {L=parameters.Length; set_param_Length(wave_num);});
@@ -289,10 +172,8 @@
 		waveGUI.onChange(function(value) {wave_num = parameters.wave_num; set_wav_num(wave_num);})
 		plane.geometry.computeVertexNormals();
 		plane.geometry.computeFaceNormals();
-
-		// vertexHelper.needsUpdate = true;
-
-		// plane.material.needsUpdate = true;
+		plane.material.map.offset.x+=0.01*parameters.d_x;
+		plane.material.map.offset.y+=0.01*parameters.d_y;
 
 		requestAnimationFrame(animate);
 		render_scene();

@@ -17,26 +17,23 @@ function create_plane(scene){
 	var p_segmentsDepth = 30;
 	var p_segmentsWidth = Math.round((3/2)*p_segmentsDepth);
 
-	// var tex = new THREE.TextureLoader().load( '11.png' );
-
 	geometry = new THREE.PlaneBufferGeometry(p_width, p_height, p_segmentsWidth, p_segmentsDepth );
 	geometry.dynamic = true;
 	geometry.verticesNeedUpdate = true;
 	geometry.computeBoundingSphere();
 	geometry.computeVertexNormals();
 	geometry.computeFaceNormals();
-	// geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
-	// material = new THREE.MeshPhongMaterial({side:THREE.DoubleSide, displacementMap:tex, displacementScale: 10, displacementBias:0 });
+	
 	var colorr = new THREE.Color();
 	colorr.setHSL(157/240,235/240,155/240);
 	var col = 0x003fff;
 
-	// geometry.addAttribute('color', new THREE.BufferAttribute(new Float32Array(geometry.attributes.position.count*3)),3);
-	// geometry.attributes.color.count = geometry.attributes.position.count;
 	var texture = new THREE.TextureLoader().load('texture_2.jpg');
 	texture.wrapS = THREE.RepeatWrapping;
 	texture.wrapT = THREE.RepeatWrapping;
+	texture.offset = new THREE.Vector2( 0.1, 0 );
 	texture.repeat.set(4,4);
+	if(texture.onUpdate) {console.log('dsdsds'); texture.onUpdate(texture.offset.x += 0.01);}
 
 	material = new THREE.MeshLambertMaterial({color: colorr, map:texture, refractionRatio: 0.985, opacity: 0.9, side:THREE.DoubleSide,reflectivity:0.7, combine:THREE.AddOperation, emissive:0x003fff, emissiveIntensity: 0.2, precision: "highp", dithering: true});//, vertexColors: geometry.attributes.color});
 
