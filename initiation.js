@@ -28,12 +28,10 @@ function create_plane(scene){
 	colorr.setHSL(157/240,235/240,155/240);
 	var col = 0x003fff;
 
-	var texture = new THREE.TextureLoader().load('texture_2.jpg');
+	var texture = new THREE.TextureLoader().load('texture.jpg');
 	texture.wrapS = THREE.RepeatWrapping;
 	texture.wrapT = THREE.RepeatWrapping;
-	texture.offset = new THREE.Vector2( 0.1, 0 );
 	texture.repeat.set(4,4);
-	if(texture.onUpdate) {console.log('dsdsds'); texture.onUpdate(texture.offset.x += 0.01);}
 
 	material = new THREE.MeshLambertMaterial({color: colorr, map:texture, refractionRatio: 0.985, opacity: 0.9, side:THREE.DoubleSide,reflectivity:0.7, combine:THREE.AddOperation, emissive:0x003fff, emissiveIntensity: 0.2, precision: "highp", dithering: true});//, vertexColors: geometry.attributes.color});
 

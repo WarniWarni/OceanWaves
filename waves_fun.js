@@ -80,7 +80,6 @@
 
 // Kth power surface
 	function getKPowerSurface(t){
-		// var calculatedSurface = [];
 		for (var x=0; x<vertices.length; x+=3){
 			var totalSurface = 0;
 			for (var j=0; j<Dd.length; j++){
@@ -88,54 +87,14 @@
 			for (var i=0; i<Amps.length; i++){
 				totalSurface = totalSurface + getKPowerState(x,x+1,t,Amps[i],Dd[i],omegs[i],Fee[i],k);
 			}
-			// calculatedSurface.push(x,x+1,totalSurface);
 			vertices[x+2] = totalSurface;
 		}
-		// return calculatedSurface;
 	}
 	function getKPowerState(x,y,t,A,D,omega,fi,k){
 		var xy_vec = new THREE.Vector2(x, y);
 		var dotProd = D.dot(xy_vec);
 		return Math.sqrt(k)*2*A*Math.pow((Math.sin(dotProd*omega+t*fi)+1)/2,k)
 	}	
-// niepotrzebne
-//	Derivatives K X
-	function calculateKthDerivativeX(t){
-		var kDerivative_field = [];
-		for (var x=0; x<vertices.length; i+=3){
-			var kd_x = 0;
-			for (var i=0; i<Amps.length; i++){
-				kd_x = kd_x + getKthDerivX(x,x+1,t,Amps[i],Dd[i],omegs[i],Fee[i],k);
-			}
-			kDerivative_field.push(x,x+1,kd_x);
-		}
-		return derivative_field;
-	}
-	function getKthDerivX(x,y,t,A,D,omega,fi,k){
-		var xy_vec = new THREE.Vector2( x, y );
-		var dotProd = D.dot(xy_vec);
-		var D_x = D.x;
-		return k*D_x*omega*A* Math.pow( (Math.sin(dotProd*omega + t*fi )+1)/2 , k-1) * Math.cos(dotProd*omega + t*fi);
-	}
-// derivative X
-	function calculateDerivativeX(t){
-		var derivative_field = [];
-		var d_x = 0;
-		for (var x=0; x<vertices.length; x+=3){
-			for (var i=0; i<Amps.length;i++){
-				d_x += getDerivX(x,x+1,t,Amps[i],Dd[i],omegs[i],Fee[i]);
-			}
-			derivative_field.push(x,x+1,d_x);
-		}
-		return derivative_field;
-	}
-	function getDerivX(x,y,t,A,D,omega,fi){
-		var xy_vec = new THREE.Vector2(x,y);
-		var D_x = D.x;
-		var dotProd = D.dot(xy_vec);
-		return omega*D_x*A*Math.cos(dotProd*omega+t*fi);
-	}
-//
 //	Calculate Z // k = 1
 	function getTotalSurface(t){
 		for (var x=0;x<vertices.length;x+=3){
